@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
-from decision_engine import make_decision
-from explainability import explain_decision
+from app.decision_engine import make_decision
+from app.explainability import explain_decision
 from flask_cors import CORS
 import os
 
