@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from decision_engine import make_decision
 from explainability import explain_decision
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 CORS(app) 
@@ -23,4 +24,5 @@ def explain():
     return jsonify(explanation)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
