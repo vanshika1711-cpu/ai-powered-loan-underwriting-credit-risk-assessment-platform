@@ -7,6 +7,19 @@ xgboost
 joblib
 shap
 python-multipart
+
 flask
 flask-cors
 gunicorn
+
+# authentication
+flask-jwt-extended
+bcrypt
+
+# database
+sqlalchemy
+psycopg2-binary
+
+# utilities
+python-dotenv
+pydantic
