@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL;
+const API = "https://ai-powered-loan-underwriting-credit-risk-3at2.onrender.com/";
 
 export const loginUser = async (email: string, password: string) => {
   const response = await axios.post(`${API}/login`, {
