@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Database
+*.db
+
+# Environment
+.env
+
+# Node
+node_modules/
+
+# Build files
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db

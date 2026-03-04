@@ -1,35 +1,27 @@
-from app.model_loader import load_model
+import joblib
+import os
 import numpy as np
-import pandas as pd
 
-# Load model once
-model = load_model()
+# Go one level up from app → backend
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def make_decision(applicant_data: dict):
-    """
-    applicant_data: dictionary of input features
-    Returns: dict with probability and decision
-    """
-    df = pd.DataFrame([applicant_data])
+MODEL_PATH = os.path.join(BASE_DIR, "models", "risk_model_optimized.pkl")
+PREPROCESSOR_PATH = os.path.join(BASE_DIR, "models", "preprocessor.pkl")
 
-    # Feature Engineering
-    df["loan_to_income_ratio"] = df["loan_amnt"] / df["person_income"]
-    df["interest_income_ratio"] = df["loan_int_rate"] / df["person_income"]
+model = joblib.load(MODEL_PATH)
+preprocessor = joblib.load(PREPROCESSOR_PATH)
 
-    # One-hot encode categorical features (must match training)...
-    categorical_cols = df.select_dtypes(include=["object", "string"]).columns
-    df = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
 
-    # Align columns with model training
-    model_features = model.get_booster().feature_names
-    for col in model_features:
-        if col not in df.columns:
-            df[col] = 0
-    df = df[model_features]
+def make_decision(applicant_data):
+    input_data = np.array([list(applicant_data.values())])
+    processed = preprocessor.transform(input_data)
 
-    # Predict
-    prob = model.predict_proba(df)[:, 1][0]
-    threshold = 0.40
-    decision = "Approved" if prob < threshold else "Rejected"
+    prediction = model.predict(processed)[0]
+    probability = model.predict_proba(processed)[0][1]
 
-    return {"probability_of_default": float(prob), "decision": decision}
+    decision = "Approved" if prediction == 1 else "Rejected"
+
+    return {
+        "decision": decision,
+        "risk_score": float(probability)
+    }
