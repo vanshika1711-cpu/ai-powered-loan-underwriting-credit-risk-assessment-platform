@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+const API = "https://ai-powered-loan-underwriting-credit-risk-3at2.onrender.com/";
 
 function Dashboard(){
 
@@ -6,7 +7,7 @@ const [stats,setStats]=useState<any>(null)
 
 useEffect(()=>{
 
-fetch("http://localhost:5000/analytics")
+fetch(`${API}/analytics`,)
 .then(res=>res.json())
 .then(data=>setStats(data))
 

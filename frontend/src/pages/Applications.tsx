@@ -9,13 +9,15 @@ interface Application {
   risk: number
 }
 
+const API = "https://ai-powered-loan-underwriting-credit-risk-3at2.onrender.com/";
+
 export default function Applications() {
 
   const [apps, setApps] = useState<Application[]>([])
 
   useEffect(() => {
 
-    fetch("http://localhost:5000/applications")
+    fetch(`${API}/applications`)
       .then(res => res.json())
       .then(data => {
         setApps(data)

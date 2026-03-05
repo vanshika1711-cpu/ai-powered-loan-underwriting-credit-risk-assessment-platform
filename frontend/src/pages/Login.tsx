@@ -14,6 +14,8 @@ const [error,setError] = useState("")
 const [loading,setLoading] = useState(false)
 const [show,setShow] = useState(false)
 
+const API="https://ai-powered-loan-underwriting-credit-risk-3at2.onrender.com/";
+
 const handleLogin = async (e:any) => {
 
 e.preventDefault()
@@ -23,7 +25,7 @@ setError("")
 
 try{
 
-const res = await fetch("http://localhost:5000/login",{
+const res = await fetch(`${API}/login`,{
 method:"POST",
 headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({email,password})

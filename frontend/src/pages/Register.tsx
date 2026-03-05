@@ -18,7 +18,7 @@ if(password.length > 0) return "Weak"
 return ""
 
 }
-
+const API = "https://ai-powered-loan-underwriting-credit-risk-3at2.onrender.com/";
 const handleRegister = async (e: React.FormEvent) => {
 
 e.preventDefault()
@@ -27,7 +27,7 @@ setMessage("")
 
 try{
 
-const res = await fetch("http://localhost:5000/register",{
+const res = await fetch(`${API}/register`,{
 
 method:"POST",
 headers:{

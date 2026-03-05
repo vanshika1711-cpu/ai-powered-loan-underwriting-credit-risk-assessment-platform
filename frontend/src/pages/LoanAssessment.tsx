@@ -8,12 +8,21 @@ name:"",
 age:"",
 income:"",
 loanAmount:"",
-creditHistory:""
+creditHistory:"",
+employmentYears:"",
+interestRate:"",
+loanPercentIncome:"",
+homeOwnership:"",
+loanIntent:"",
+loanGrade:"",
+previousDefault:""
 })
 
 const [risk,setRisk]=useState(0)
 const [decision,setDecision]=useState("")
 const [explanation,setExplanation]=useState<string[]>([])
+
+const API = "https://ai-powered-loan-underwriting-credit-risk-3at2.onrender.com/";
 
 const handleChange=(e:any)=>{
 setForm({...form,[e.target.name]:e.target.value})
@@ -21,7 +30,7 @@ setForm({...form,[e.target.name]:e.target.value})
 
 const runAssessment=async()=>{
 
-const res=await fetch("http://localhost:5000/predict",{
+const res=await fetch(`${API}/predict`,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(form)
@@ -32,7 +41,7 @@ const data=await res.json()
 setRisk(data.risk_score)
 setDecision(data.decision)
 
-const exp=await fetch("http://localhost:5000/explain",{
+const exp=await fetch(`${API}/explain`,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(form)
@@ -85,11 +94,77 @@ className="w-full mb-4 p-3 rounded-lg bg-slate-800 text-white border border-slat
 />
 
 <input
+name="employmentYears"
+placeholder="Employment Years"
+onChange={handleChange}
+className="w-full mb-4 p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:border-purple-500 outline-none"
+/>
+
+<input
+name="interestRate"
+placeholder="Interest Rate (%)"
+onChange={handleChange}
+className="w-full mb-4 p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:border-purple-500 outline-none"
+/>
+
+<input
+name="loanPercentIncome"
+placeholder="Loan % of Income"
+onChange={handleChange}
+className="w-full mb-4 p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:border-purple-500 outline-none"
+/>
+
+<input
 name="creditHistory"
 placeholder="Credit History (years)"
 onChange={handleChange}
 className="w-full mb-4 p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:border-purple-500 outline-none"
 />
+
+<select
+name="homeOwnership"
+onChange={handleChange}
+className="w-full mb-4 p-3 rounded-lg bg-slate-800 text-white border border-slate-600"
+>
+<option value="">Home Ownership</option>
+<option value="rent">Rent</option>
+<option value="own">Own</option>
+<option value="mortgage">Mortgage</option>
+</select>
+
+<select
+name="loanIntent"
+onChange={handleChange}
+className="w-full mb-4 p-3 rounded-lg bg-slate-800 text-white border border-slate-600"
+>
+<option value="">Loan Intent</option>
+<option value="education">Education</option>
+<option value="medical">Medical</option>
+<option value="personal">Personal</option>
+<option value="business">Business</option>
+</select>
+
+<select
+name="loanGrade"
+onChange={handleChange}
+className="w-full mb-4 p-3 rounded-lg bg-slate-800 text-white border border-slate-600"
+>
+<option value="">Loan Grade</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+</select>
+
+<select
+name="previousDefault"
+onChange={handleChange}
+className="w-full mb-4 p-3 rounded-lg bg-slate-800 text-white border border-slate-600"
+>
+<option value="">Previous Default</option>
+<option value="0">No</option>
+<option value="1">Yes</option>
+</select>
 
 <button
 onClick={runAssessment}
