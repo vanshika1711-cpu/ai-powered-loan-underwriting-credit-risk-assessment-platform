@@ -1,16 +1,19 @@
 fastapi
 uvicorn
+
 pandas
 numpy
 scikit-learn
 xgboost
 joblib
 shap
+
 python-multipart
 
 flask
 flask-cors
 gunicorn
+flask-limiter
 
 # authentication
 flask-jwt-extended
@@ -23,3 +26,6 @@ psycopg2-binary
 # utilities
 python-dotenv
 pydantic
+
+pytest
+requests
