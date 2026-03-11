@@ -40,6 +40,26 @@ def get_db():
 
 
 # -----------------------------
+# ADMIN CHECK
+# -----------------------------
+def is_admin(email):
+
+    conn = get_db()
+
+    user = conn.execute(
+        "SELECT role FROM users WHERE email=?",
+        (email,)
+    ).fetchone()
+
+    conn.close()
+
+    if user and user["role"] == "admin":
+        return True
+
+    return False
+
+
+# -----------------------------
 # DATABASE INIT
 # -----------------------------
 def init_db():
@@ -62,7 +82,8 @@ def init_db():
     CREATE TABLE IF NOT EXISTS users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT UNIQUE,
-        password TEXT
+        password TEXT,
+        role TEXT DEFAULT 'user'
     )
     """)
 
@@ -89,6 +110,7 @@ def register():
 
     email = data.get("email")
     password = data.get("password")
+    role = data.get("role", "user")
 
     if not email or not password:
         return jsonify({"success": False, "message": "Email and password required"}), 400
@@ -107,8 +129,8 @@ def register():
         return jsonify({"success": False, "message": "User already exists"})
 
     conn.execute(
-        "INSERT INTO users(email,password) VALUES (?,?)",
-        (email, hashed_password)
+        "INSERT INTO users(email,password,role) VALUES (?,?,?)",
+        (email, hashed_password, role)
     )
 
     conn.commit()
@@ -141,7 +163,8 @@ def login():
     if user and check_password_hash(user["password"], password):
         return jsonify({
             "success": True,
-            "token": "creditai-user"
+            "token": "creditai-user",
+            "role": user["role"]
         })
 
     return jsonify({
@@ -241,10 +264,15 @@ def predict():
 
 
 # -----------------------------
-# APPLICATION LIST
+# APPLICATION LIST (ADMIN)
 # -----------------------------
 @app.route("/applications")
 def applications():
+
+    email = request.args.get("email")
+
+    if not is_admin(email):
+        return jsonify({"error": "Admin access required"}), 403
 
     conn = get_db()
 
@@ -258,10 +286,15 @@ def applications():
 
 
 # -----------------------------
-# ANALYTICS
+# ANALYTICS (ADMIN)
 # -----------------------------
 @app.route("/analytics")
 def analytics():
+
+    email = request.args.get("email")
+
+    if not is_admin(email):
+        return jsonify({"error": "Admin access required"}), 403
 
     conn = get_db()
 
@@ -290,19 +323,31 @@ def analytics():
 
 
 # -----------------------------
-# MODEL METRICS
+# MODEL METRICS (ADMIN)
 # -----------------------------
 @app.route("/metrics")
 def metrics():
+
+    email = request.args.get("email")
+
+    if not is_admin(email):
+        return jsonify({"error": "Admin access required"}), 403
+
     metrics_data = get_model_metrics()
+
     return jsonify(metrics_data)
 
 
 # -----------------------------
-# FAIRNESS MONITORING
+# FAIRNESS MONITORING (ADMIN)
 # -----------------------------
 @app.route("/fairness")
 def fairness():
+
+    email = request.args.get("email")
+
+    if not is_admin(email):
+        return jsonify({"error": "Admin access required"}), 403
 
     fairness_data = get_fairness_metrics()
 
