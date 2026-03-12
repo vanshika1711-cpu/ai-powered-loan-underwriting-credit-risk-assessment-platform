@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Sidebar from "./Sidebar";
-import { Sun, Moon, User } from "lucide-react";
+import { Sun, Moon, User, Search, Settings } from "lucide-react";
 
 function MainLayout() {
   const { setToken, toggleTheme, theme } = useAuth();
@@ -15,7 +15,7 @@ function MainLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-black via-[#0f172a] to-black text-white">
+    <div className="flex h-screen bg-gradient-to-br from-[#020617] via-[#07122b] to-[#020617] text-white">
 
       {/* SIDEBAR */}
 
@@ -27,20 +27,48 @@ function MainLayout() {
 
         {/* NAVBAR */}
 
-        <header className="flex items-center justify-between px-8 py-5 border-b border-white/10 backdrop-blur-xl bg-black/30">
+        <header className="flex items-center justify-between px-8 py-4 border-b border-white/10 backdrop-blur-xl bg-black/30">
 
-          <h2 className="text-xl font-semibold tracking-wide">
-            AI Risk Command Center
-          </h2>
+          {/* LEFT */}
 
           <div className="flex items-center gap-6">
 
-            {/* THEME BUTTON */}
+            <h2 className="text-lg font-semibold tracking-wide">
+              AI Risk Command Center
+            </h2>
+
+            {/* AI STATUS */}
+
+            <div className="flex items-center gap-2 text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1 rounded-full">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              AI Engine Active
+            </div>
+
+          </div>
+
+          {/* CENTER SEARCH */}
+
+          <div className="hidden md:flex items-center bg-white/5 border border-white/10 rounded-lg px-3 py-2 w-72">
+
+            <Search size={16} className="text-gray-400 mr-2" />
+
+            <input
+              placeholder="Search applicants, logs..."
+              className="bg-transparent outline-none text-sm w-full text-gray-300 placeholder-gray-500"
+            />
+
+          </div>
+
+          {/* RIGHT */}
+
+          <div className="flex items-center gap-5">
+
+            {/* THEME */}
 
             <button
               aria-label="Toggle Theme"
               onClick={toggleTheme}
-              className="p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition"
+              className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-purple-600/30 transition"
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
@@ -58,17 +86,45 @@ function MainLayout() {
               </button>
 
               {open && (
-                <div className="absolute right-0 mt-3 w-44 bg-[#0b1220] border border-white/10 rounded-xl shadow-xl p-3">
+
+                <div className="absolute right-0 mt-3 w-52 bg-[#0b1220] border border-white/10 rounded-xl shadow-xl p-3">
+
+                  <div className="px-3 pb-3 border-b border-white/10">
+
+                    <p className="text-sm font-semibold">
+                      CreditAI User
+                    </p>
+
+                    <p className="text-xs text-gray-400">
+                      user@creditai.ai
+                    </p>
+
+                  </div>
+
+                  <button
+                    className="flex items-center gap-2 w-full px-3 py-2 mt-2 rounded-lg hover:bg-white/5 transition text-sm"
+                  >
+                    <User size={16}/>
+                    Profile
+                  </button>
+
+                  <button
+                    className="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-white/5 transition text-sm"
+                  >
+                    <Settings size={16}/>
+                    Settings
+                  </button>
 
                   <button
                     aria-label="Logout"
                     onClick={logout}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-red-500/20 text-red-400 transition"
+                    className="w-full text-left px-3 py-2 mt-2 rounded-lg hover:bg-red-500/20 text-red-400 transition text-sm"
                   >
                     Logout
                   </button>
 
                 </div>
+
               )}
 
             </div>

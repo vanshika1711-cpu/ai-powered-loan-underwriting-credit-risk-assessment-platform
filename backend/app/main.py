@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-import bcrypt
 import joblib
 import pandas as pd
 import sqlite3
@@ -25,6 +24,7 @@ model = joblib.load("models/risk_model_optimized.pkl")
 training_income_avg = 50000
 live_income_values = []
 
+
 # -----------------------------
 # SECURITY HEADERS
 # -----------------------------
@@ -43,6 +43,22 @@ def get_db():
     conn = sqlite3.connect("creditai.db")
     conn.row_factory = sqlite3.Row
     return conn
+
+
+# -----------------------------
+# AUDIT LOG FUNCTION
+# -----------------------------
+def log_event(event, details):
+
+    conn = get_db()
+
+    conn.execute(
+        "INSERT INTO audit_logs(event,details) VALUES (?,?)",
+        (event, details)
+    )
+
+    conn.commit()
+    conn.close()
 
 
 # -----------------------------
@@ -90,6 +106,15 @@ def init_db():
         email TEXT UNIQUE,
         password TEXT,
         role TEXT DEFAULT 'user'
+    )
+    """)
+
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS audit_logs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event TEXT,
+        details TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )
     """)
 
@@ -152,6 +177,8 @@ def register():
     conn.commit()
     conn.close()
 
+    log_event("USER_REGISTER", email)
+
     return jsonify({"success": True})
 
 
@@ -177,6 +204,9 @@ def login():
     conn.close()
 
     if user and check_password_hash(user["password"], password):
+
+        log_event("USER_LOGIN", email)
+
         return jsonify({
             "success": True,
             "token": "creditai-user",
@@ -272,6 +302,11 @@ def predict():
         conn.commit()
         conn.close()
 
+        log_event(
+            "LOAN_PREDICTION",
+            f"{name} | loan={loan} | risk={risk_score} | decision={decision}"
+        )
+
         return jsonify({
             "risk_score": risk_score,
             "approval_probability": approval_probability,
@@ -286,6 +321,88 @@ def predict():
             "error": "Prediction failed",
             "details": str(e)
         }), 500
+
+
+# -----------------------------
+# GET ALL APPLICATIONS
+# -----------------------------
+@app.route("/applications", methods=["GET"])
+def get_applications():
+
+    conn = get_db()
+
+    rows = conn.execute(
+        "SELECT name, age, income, loan, decision, risk FROM applications ORDER BY id DESC"
+    ).fetchall()
+
+    conn.close()
+
+    applications = []
+
+    for r in rows:
+        applications.append({
+            "name": r["name"],
+            "age": r["age"],
+            "income": r["income"],
+            "loan": r["loan"],
+            "decision": r["decision"],
+            "risk": r["risk"]
+        })
+
+    return jsonify(applications)
+
+
+# -----------------------------
+# AUDIT LOGS API
+# -----------------------------
+@app.route("/audit", methods=["GET"])
+def audit_logs():
+
+    conn = get_db()
+
+    rows = conn.execute(
+        "SELECT event, details, timestamp FROM audit_logs ORDER BY id DESC LIMIT 50"
+    ).fetchall()
+
+    conn.close()
+
+    logs = []
+
+    for r in rows:
+        logs.append({
+            "event": r["event"],
+            "details": r["details"],
+            "time": r["timestamp"]
+        })
+
+    return jsonify(logs)
+
+
+# -----------------------------
+# DASHBOARD ANALYTICS
+# -----------------------------
+@app.route("/analytics", methods=["GET"])
+def analytics():
+
+    conn = get_db()
+
+    rows = conn.execute("SELECT decision, risk FROM applications").fetchall()
+
+    conn.close()
+
+    total = len(rows)
+
+    approved = sum(1 for r in rows if r["decision"] == "Approved")
+    rejected = sum(1 for r in rows if r["decision"] == "Rejected")
+
+    avg_risk = round(sum(r["risk"] for r in rows) / total, 2) if total > 0 else 0
+
+    return jsonify({
+        "total_applications": total,
+        "approved_loans": approved,
+        "rejected_loans": rejected,
+        "average_risk": avg_risk
+    })
 
 
 # -----------------------------

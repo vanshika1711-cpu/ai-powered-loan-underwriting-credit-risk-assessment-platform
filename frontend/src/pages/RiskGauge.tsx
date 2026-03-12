@@ -4,40 +4,37 @@ export default function RiskGauge({score}:{score:number}){
 
 const data=[{name:"risk",value:score}]
 
-const getRiskLevel=()=>{
-if(score<40) return "LOW RISK"
-if(score<70) return "MEDIUM RISK"
-return "HIGH RISK"
-}
-
 const getColor=()=>{
 if(score<40) return "#22c55e"
 if(score<70) return "#facc15"
 return "#ef4444"
 }
 
-const getGlow=()=>{
-if(score<40) return "shadow-[0_0_40px_rgba(34,197,94,0.6)]"
-if(score<70) return "shadow-[0_0_40px_rgba(250,204,21,0.6)]"
-return "shadow-[0_0_40px_rgba(239,68,68,0.6)]"
+const getLabel=()=>{
+if(score<40) return "LOW RISK"
+if(score<70) return "MEDIUM RISK"
+return "HIGH RISK"
 }
 
 return(
 
-<div className="flex flex-col items-center justify-center relative w-full">
+<div className="flex flex-col items-center justify-center relative">
 
-{/* GAUGE */}
+{/* GLOW BACKGROUND */}
 
-<div className={`rounded-full ${getGlow()} transition-all duration-700`}>
+<div
+className="absolute w-[260px] h-[260px] rounded-full blur-[60px] opacity-40"
+style={{background:getColor()}}
+/>
 
 <RadialBarChart
 width={280}
 height={280}
 cx="50%"
-cy="50%"
-innerRadius="75%"
+cy="55%"
+innerRadius="70%"
 outerRadius="100%"
-barSize={20}
+barSize={18}
 data={data}
 startAngle={180}
 endAngle={0}
@@ -50,52 +47,62 @@ tick={false}
 />
 
 <RadialBar
-background
+background={{fill:"#1e293b"}}
 dataKey="value"
-cornerRadius={15}
+cornerRadius={30}
 fill={getColor()}
+animationDuration={1500}
 />
 
 </RadialBarChart>
 
-</div>
 
+{/* CENTER DISPLAY */}
 
-{/* CENTER CONTENT */}
+<div className="absolute flex flex-col items-center">
 
-<div className="absolute flex flex-col items-center justify-center">
+<div className="text-5xl font-bold tracking-tight">
 
-<div className="text-5xl font-bold tracking-wide">
 {score}
-<span className="text-xl ml-1">%</span>
+
+<span className="text-lg ml-1 text-gray-400">
+%
+</span>
+
 </div>
 
 <div
-className={`mt-2 px-3 py-1 text-xs rounded-full font-semibold tracking-wider
-${score<40
-?"bg-green-500/20 text-green-400 border border-green-400"
-:score<70
-?"bg-yellow-500/20 text-yellow-400 border border-yellow-400"
-:"bg-red-500/20 text-red-400 border border-red-400"}
-`}
+className="mt-2 text-xs font-semibold tracking-widest px-3 py-1 rounded-full"
+style={{
+background:getColor()+"20",
+color:getColor(),
+border:`1px solid ${getColor()}`
+}}
 >
-{getRiskLevel()}
-</div>
+
+{getLabel()}
 
 </div>
 
+</div>
 
-{/* LABELS */}
 
-<div className="flex justify-between w-full max-w-[260px] text-xs text-gray-400 mt-2">
+{/* SCALE */}
 
-<span>0%</span>
-<span>50%</span>
-<span>100%</span>
+<div className="absolute bottom-6 flex justify-between w-[200px] text-xs text-gray-500">
 
+<span>0</span>
+<span>50</span>
+<span>100</span>
+
+</div>
+
+<div className="mt-4 text-sm text-gray-400">
+AI Credit Risk Score
 </div>
 
 </div>
 
 )
+
 }

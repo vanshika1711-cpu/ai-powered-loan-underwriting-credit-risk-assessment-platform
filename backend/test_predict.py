@@ -7,9 +7,12 @@ data = {
     "age": 30,
     "income": 60000,
     "loanAmount": 15000,
-    "creditHistory": 10
+    "employmentYears": 5,
+    "interestRate": 8,
+    "previousDefault": 0
 }
 
 response = requests.post(url, json=data)
 
-print(response.json())
+print("Status Code:", response.status_code)
+print("Response:", response.json())

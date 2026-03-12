@@ -4,98 +4,167 @@ BarChart,
 Bar,
 PieChart,
 Pie,
-ResponsiveContainer,
+Cell,
 XAxis,
 YAxis,
 Tooltip,
-Cell
+ResponsiveContainer,
+CartesianGrid
 } from "recharts"
-const API="https://ai-powered-loan-underwriting-credit-risk-3at2.onrender.com/";
+
+interface Application {
+name:string
+age:number
+income:number
+loan:number
+decision:string
+risk:number
+}
+
+const API =
+import.meta.env.VITE_API_URL ||
+"http://127.0.0.1:5000"
 
 export default function RiskAnalytics(){
 
-const [stats,setStats] = useState<any>(null)
-const [apps,setApps] = useState<any[]>([])
+const [apps,setApps]=useState<Application[]>([])
+const [loading,setLoading]=useState(true)
 
 useEffect(()=>{
 
-fetch(`${API}/analytics`)
-.then(res=>res.json())
-.then(data=>setStats(data))
-
 fetch(`${API}/applications`)
 .then(res=>res.json())
-.then(data=>setApps(data))
+.then(data=>{
+setApps(data)
+setLoading(false)
+})
+.catch(err=>{
+console.error("Analytics fetch error:",err)
+setLoading(false)
+})
 
 },[])
 
-if(!stats) return <div className="p-8 text-white">Loading...</div>
+const approved=apps.filter(a=>a.decision==="Approved").length
+const rejected=apps.filter(a=>a.decision==="Rejected").length
 
+const approvalRate=
+apps.length>0
+?((approved/apps.length)*100).toFixed(1)
+:0
 
-// ---------- RISK BUCKETS ----------
+const avgRisk=
+apps.length>0
+?(apps.reduce((sum,a)=>sum+a.risk,0)/apps.length).toFixed(1)
+:0
 
-let low = 0
-let medium = 0
-let high = 0
+const totalLoans=
+apps.reduce((sum,a)=>sum+a.loan,0)
 
-apps.forEach(a=>{
-
-if(a.risk < 30) low++
-else if(a.risk < 60) medium++
-else high++
-
-})
-
-
-const pieData = [
-{ name:"Low Risk", value:low },
-{ name:"Medium Risk", value:medium },
-{ name:"High Risk", value:high }
+const decisionData=[
+{ name:"Approved",value:approved },
+{ name:"Rejected",value:rejected }
 ]
 
-const barData = [
-{ name:"Approved", value:stats.approved },
-{ name:"Rejected", value:stats.rejected }
+/* Risk buckets FIXED (0-100 scale) */
+
+const riskBuckets=[
+{ name:"Low Risk",value:apps.filter(a=>a.risk<40).length },
+{ name:"Medium Risk",value:apps.filter(a=>a.risk>=40 && a.risk<70).length },
+{ name:"High Risk",value:apps.filter(a=>a.risk>=70).length }
 ]
 
+const COLORS=["#22c55e","#facc15","#ef4444"]
+
+if(loading)
 
 return(
 
-<div className="space-y-10 text-white">
+<div className="p-8 text-gray-400">
 
-<h1 className="text-3xl font-bold">
+Loading Analytics...
+
+</div>
+
+)
+
+return(
+
+<div className="p-8 text-white">
+
+<h1 className="text-4xl font-bold mb-8">
+
 Advanced Analytics
+
 </h1>
 
 
-{/* KPI CARDS */}
+{/* STATS */}
 
-<div className="grid grid-cols-4 gap-6">
+<div className="grid grid-cols-4 gap-6 mb-10">
 
-<div className="bg-slate-800 p-6 rounded-xl">
-<h2>Total Loans</h2>
-<p className="text-3xl">{stats.total}</p>
+<div className="bg-[#1e293b] rounded-xl p-6">
+
+<p className="text-gray-400 text-sm">
+
+Total Loan Amount
+
+</p>
+
+<h2 className="text-3xl font-bold">
+
+${totalLoans.toLocaleString()}
+
+</h2>
+
 </div>
 
-<div className="bg-green-700 p-6 rounded-xl">
-<h2>Approval Rate</h2>
-<p className="text-3xl">
-{stats.total ? Math.round((stats.approved / stats.total)*100) : 0}%
+<div className="bg-green-700 rounded-xl p-6">
+
+<p className="text-sm">
+
+Approval Rate
+
 </p>
+
+<h2 className="text-3xl font-bold">
+
+{approvalRate}%
+
+</h2>
+
 </div>
 
-<div className="bg-red-700 p-6 rounded-xl">
-<h2>Avg Risk Score</h2>
-<p className="text-3xl">
-{Math.round(stats.avg_risk || 0)}
+<div className="bg-red-700 rounded-xl p-6">
+
+<p className="text-sm">
+
+Avg Risk Score
+
 </p>
+
+<h2 className="text-3xl font-bold">
+
+{avgRisk}%
+
+</h2>
+
 </div>
 
-<div className="bg-purple-700 p-6 rounded-xl">
-<h2>Active Clients</h2>
-<p className="text-3xl">
-{stats.total}
+<div className="bg-purple-700 rounded-xl p-6">
+
+<p className="text-sm">
+
+Active Clients
+
 </p>
+
+<h2 className="text-3xl font-bold">
+
+{apps.length}
+
+</h2>
+
 </div>
 
 </div>
@@ -106,21 +175,32 @@ Advanced Analytics
 <div className="grid grid-cols-2 gap-8">
 
 
-{/* BAR CHART */}
+{/* Decision Chart */}
 
-<div className="bg-slate-900 p-6 rounded-xl">
+<div className="bg-[#020617] p-6 rounded-xl border border-gray-800">
 
-<h2 className="mb-4">Loan Decisions</h2>
+<h2 className="text-lg font-semibold mb-6">
+
+Loan Decisions
+
+</h2>
 
 <ResponsiveContainer width="100%" height={300}>
 
-<BarChart data={barData}>
+<BarChart data={decisionData}>
 
-<XAxis dataKey="name"/>
-<YAxis/>
+<CartesianGrid strokeDasharray="3 3" stroke="#1e293b"/>
+
+<XAxis dataKey="name" stroke="#9ca3af"/>
+<YAxis stroke="#9ca3af"/>
+
 <Tooltip/>
 
-<Bar dataKey="value" fill="#8b5cf6"/>
+<Bar
+dataKey="value"
+fill="#6366f1"
+radius={[6,6,0,0]}
+/>
 
 </BarChart>
 
@@ -129,27 +209,31 @@ Advanced Analytics
 </div>
 
 
-{/* PIE CHART */}
+{/* Risk Distribution */}
 
-<div className="bg-slate-900 p-6 rounded-xl">
+<div className="bg-[#020617] p-6 rounded-xl border border-gray-800">
 
-<h2 className="mb-4">Risk Distribution</h2>
+<h2 className="text-lg font-semibold mb-6">
+
+Risk Distribution
+
+</h2>
 
 <ResponsiveContainer width="100%" height={300}>
 
 <PieChart>
 
 <Pie
-data={pieData}
+data={riskBuckets}
 dataKey="value"
 nameKey="name"
-outerRadius={120}
+outerRadius={110}
 label
 >
 
-<Cell fill="#22c55e"/>
-<Cell fill="#eab308"/>
-<Cell fill="#ef4444"/>
+{riskBuckets.map((entry,index)=>(
+<Cell key={index} fill={COLORS[index]}/>
+))}
 
 </Pie>
 
@@ -160,7 +244,6 @@ label
 </ResponsiveContainer>
 
 </div>
-
 
 </div>
 

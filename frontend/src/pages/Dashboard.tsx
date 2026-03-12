@@ -1,57 +1,37 @@
 import { useEffect, useState } from "react"
 
-const API = "https://ai-powered-loan-underwriting-credit-risk-3at2.onrender.com"
+const API =
+  import.meta.env.VITE_API_URL ||
+  "http://127.0.0.1:5000"
 
 function Dashboard(){
 
-const [stats,setStats]=useState<any>(null)
+const [stats,setStats]=useState<any>({
+total_applications:0,
+approved_loans:0,
+rejected_loans:0,
+average_risk:0
+})
 
 useEffect(()=>{
 
 fetch(`${API}/analytics`)
 .then(res=>res.json())
-.then(data=>setStats(data))
-.catch(()=>setStats({
-total:0,
-approved:0,
-rejected:0,
-avg_risk:0
-}))
+.then(data=>{
+setStats(data)
+})
+.catch(err=>{
+console.error("Analytics fetch error:",err)
+})
 
 },[])
 
 
-if(!stats) return(
-
-<div className="min-h-screen flex items-center justify-center bg-[#020617] text-white">
-
-<div className="animate-pulse text-xl tracking-wide">
-Initializing AI Risk Engine...
-</div>
-
-</div>
-
-)
-
-
 return(
 
-<div className="relative min-h-screen overflow-hidden text-white">
+<div className="min-h-screen text-white bg-gradient-to-br from-[#020617] via-[#07122b] to-[#020617]">
 
-
-{/* BACKGROUND */}
-
-<div className="absolute inset-0 -z-10 bg-[#020617]" />
-
-<div className="absolute w-[700px] h-[700px] bg-purple-500/40 blur-[160px] rounded-full top-[-150px] left-[-100px] animate-pulse"/>
-
-<div className="absolute w-[700px] h-[700px] bg-blue-500/40 blur-[160px] rounded-full bottom-[-150px] right-[-100px] animate-pulse"/>
-
-<div className="absolute w-[600px] h-[600px] bg-pink-500/30 blur-[140px] rounded-full top-[35%] left-[40%]" />
-
-
-<div className="p-10 space-y-12">
-
+<div className="p-10 space-y-10">
 
 {/* HEADER */}
 
@@ -59,13 +39,13 @@ return(
 
 <div>
 
-<h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+<h1 className="text-3xl font-semibold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
 
 AI Credit Risk Dashboard
 
 </h1>
 
-<p className="text-gray-400 mt-2">
+<p className="text-gray-400 text-sm mt-1">
 
 Real-time insights for loan underwriting decisions
 
@@ -74,11 +54,9 @@ Real-time insights for loan underwriting decisions
 </div>
 
 
-{/* AI STATUS */}
+<div className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-full">
 
-<div className="flex items-center gap-3 bg-white/5 backdrop-blur-xl px-5 py-2 rounded-full border border-white/10">
-
-<div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"/>
+<div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"/>
 
 <span className="text-sm text-gray-300">
 
@@ -92,107 +70,230 @@ AI Engine Active
 
 
 
-{/* STATS CARDS */}
+{/* STATS */}
 
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
 
-{/* TOTAL */}
+<div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:border-purple-500/40 transition">
 
-<div className="group bg-white/5 backdrop-blur-xl p-7 rounded-2xl border border-white/10 hover:border-purple-500/40 transition hover:scale-[1.02] shadow-xl">
+<p className="text-gray-400 text-sm">Total Applications</p>
 
-<p className="text-gray-400">Total Applications</p>
+<h2 className="text-3xl font-semibold mt-2 text-purple-400">
 
-<h2 className="text-4xl font-bold mt-3 text-purple-400">
-
-{stats.total}
+{stats.total_applications}
 
 </h2>
 
-<div className="h-[3px] w-full mt-4 bg-purple-500/30 rounded-full"/>
-
 </div>
 
 
-{/* APPROVED */}
+<div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:border-green-500/40 transition">
 
-<div className="group bg-white/5 backdrop-blur-xl p-7 rounded-2xl border border-white/10 hover:border-green-500/40 transition hover:scale-[1.02] shadow-xl">
+<p className="text-gray-400 text-sm">Approved Loans</p>
 
-<p className="text-gray-400">Approved Loans</p>
+<h2 className="text-3xl font-semibold mt-2 text-green-400">
 
-<h2 className="text-4xl font-bold mt-3 text-green-400">
-
-{stats.approved}
+{stats.approved_loans}
 
 </h2>
 
-<div className="h-[3px] w-full mt-4 bg-green-500/30 rounded-full"/>
-
 </div>
 
 
-{/* REJECTED */}
+<div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:border-red-500/40 transition">
 
-<div className="group bg-white/5 backdrop-blur-xl p-7 rounded-2xl border border-white/10 hover:border-red-500/40 transition hover:scale-[1.02] shadow-xl">
+<p className="text-gray-400 text-sm">Rejected Loans</p>
 
-<p className="text-gray-400">Rejected Loans</p>
+<h2 className="text-3xl font-semibold mt-2 text-red-400">
 
-<h2 className="text-4xl font-bold mt-3 text-red-400">
-
-{stats.rejected}
+{stats.rejected_loans}
 
 </h2>
 
-<div className="h-[3px] w-full mt-4 bg-red-500/30 rounded-full"/>
-
 </div>
 
 
-{/* RISK */}
+<div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:border-yellow-500/40 transition">
 
-<div className="group bg-white/5 backdrop-blur-xl p-7 rounded-2xl border border-white/10 hover:border-yellow-500/40 transition hover:scale-[1.02] shadow-xl">
+<p className="text-gray-400 text-sm">Average Risk</p>
 
-<p className="text-gray-400">Average Risk</p>
+<h2 className="text-3xl font-semibold mt-2 text-yellow-400">
 
-<h2 className="text-4xl font-bold mt-3 text-yellow-400">
-
-{Math.round(stats.avg_risk)}
+{Math.round(stats.average_risk)}%
 
 </h2>
 
-<div className="h-[3px] w-full mt-4 bg-yellow-500/30 rounded-full"/>
-
 </div>
 
 </div>
 
 
 
-{/* SECOND ROW */}
+{/* MAIN GRID */}
 
-<div className="grid md:grid-cols-2 gap-8">
+<div className="grid lg:grid-cols-3 gap-6">
 
 
-{/* SYSTEM STATUS */}
+{/* RECENT ACTIVITY */}
 
-<div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-xl">
+<div className="lg:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6">
 
-<h3 className="text-xl font-semibold text-purple-400">
+<h3 className="text-lg font-semibold mb-4 text-purple-400">
+
+Recent Activity
+
+</h3>
+
+<div className="space-y-4 text-sm">
+
+<div className="flex justify-between border-b border-white/5 pb-2">
+
+<span className="text-gray-300">Loan assessed for Sonam Sharma</span>
+
+<span className="text-gray-500">2 min ago</span>
+
+</div>
+
+<div className="flex justify-between border-b border-white/5 pb-2">
+
+<span className="text-gray-300">Risk model evaluated new applicant</span>
+
+<span className="text-gray-500">10 min ago</span>
+
+</div>
+
+<div className="flex justify-between border-b border-white/5 pb-2">
+
+<span className="text-gray-300">AI decision logged in audit system</span>
+
+<span className="text-gray-500">25 min ago</span>
+
+</div>
+
+<div className="flex justify-between">
+
+<span className="text-gray-300">Analytics dashboard updated</span>
+
+<span className="text-gray-500">1 hour ago</span>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+{/* QUICK ACTIONS */}
+
+<div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6">
+
+<h3 className="text-lg font-semibold mb-4 text-blue-400">
+
+Quick Actions
+
+</h3>
+
+<div className="space-y-4 text-sm">
+
+<div className="flex items-start gap-3">
+
+<div className="w-2 h-2 mt-2 bg-green-400 rounded-full"/>
+
+<div>
+
+<p className="text-gray-200">
+
+Assess new loan application
+
+</p>
+
+<p className="text-gray-500 text-xs">
+
+Run AI credit risk model
+
+</p>
+
+</div>
+
+</div>
+
+
+<div className="flex items-start gap-3">
+
+<div className="w-2 h-2 mt-2 bg-yellow-400 rounded-full"/>
+
+<div>
+
+<p className="text-gray-200">
+
+Review analytics dashboard
+
+</p>
+
+<p className="text-gray-500 text-xs">
+
+Monitor approval trends
+
+</p>
+
+</div>
+
+</div>
+
+
+<div className="flex items-start gap-3">
+
+<div className="w-2 h-2 mt-2 bg-purple-400 rounded-full"/>
+
+<div>
+
+<p className="text-gray-200">
+
+Audit system activity
+
+</p>
+
+<p className="text-gray-500 text-xs">
+
+Check model decisions
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+{/* MODEL STATUS */}
+
+<div className="grid md:grid-cols-2 gap-6">
+
+<div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6">
+
+<h3 className="text-lg font-semibold text-purple-400">
 
 System Status
 
 </h3>
 
-<p className="text-gray-400 mt-3">
+<p className="text-gray-400 text-sm mt-2">
 
-AI underwriting engine is running normally and analyzing loan applications in real-time.
+AI underwriting engine is operating normally.
 
 </p>
 
+<div className="mt-4">
 
-<div className="mt-6">
-
-<div className="flex justify-between text-sm text-gray-400">
+<div className="flex justify-between text-xs text-gray-400">
 
 <span>AI Performance</span>
 
@@ -211,26 +312,17 @@ AI underwriting engine is running normally and analyzing loan applications in re
 </div>
 
 
-{/* MODEL INSIGHTS */}
+<div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6">
 
-<div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-xl">
-
-<h3 className="text-xl font-semibold text-blue-400">
+<h3 className="text-lg font-semibold text-blue-400">
 
 Model Insights
 
 </h3>
 
-<p className="text-gray-400 mt-3">
+<div className="mt-4 space-y-3 text-sm">
 
-Risk model continuously evaluates borrower profiles and predicts default probability.
-
-</p>
-
-
-<div className="mt-6 space-y-3">
-
-<div className="flex justify-between text-sm">
+<div className="flex justify-between">
 
 <span className="text-gray-400">Low Risk</span>
 
@@ -238,7 +330,7 @@ Risk model continuously evaluates borrower profiles and predicts default probabi
 
 </div>
 
-<div className="flex justify-between text-sm">
+<div className="flex justify-between">
 
 <span className="text-gray-400">Medium Risk</span>
 
@@ -246,7 +338,7 @@ Risk model continuously evaluates borrower profiles and predicts default probabi
 
 </div>
 
-<div className="flex justify-between text-sm">
+<div className="flex justify-between">
 
 <span className="text-gray-400">High Risk</span>
 
@@ -259,6 +351,7 @@ Risk model continuously evaluates borrower profiles and predicts default probabi
 </div>
 
 </div>
+
 
 </div>
 

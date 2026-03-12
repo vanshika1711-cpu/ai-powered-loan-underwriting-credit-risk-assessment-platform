@@ -1,24 +1,87 @@
-function AuditLogs() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-white">
-        Audit Logs
-      </h1>
+import { useEffect, useState } from "react"
 
-      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-        <p className="text-gray-400">
-          User activity logs will appear here.
-        </p>
-
-        <ul className="mt-4 space-y-3 text-sm text-gray-300">
-          <li>• User logged in</li>
-          <li>• Loan application reviewed</li>
-          <li>• Risk score generated</li>
-          <li>• Admin exported report</li>
-        </ul>
-      </div>
-    </div>
-  );
+interface Log{
+event:string
+details:string
+time:string
 }
 
-export default AuditLogs;
+const API="http://127.0.0.1:5000"
+
+export default function AuditLogs(){
+
+const [logs,setLogs]=useState<Log[]>([])
+
+useEffect(()=>{
+
+fetch(`${API}/audit`)
+.then(res=>res.json())
+.then(data=>setLogs(data))
+
+},[])
+
+return(
+
+<div className="p-8 text-white">
+
+<h1 className="text-4xl font-bold mb-8">
+
+Audit Logs
+
+</h1>
+
+<div className="bg-[#020617] border border-gray-800 rounded-xl overflow-hidden">
+
+<table className="w-full">
+
+<thead className="border-b border-gray-800 text-gray-400">
+
+<tr>
+
+<th className="px-6 py-4 text-left">Event</th>
+<th className="px-6 py-4 text-left">Details</th>
+<th className="px-6 py-4 text-left">Time</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{logs.map((log,i)=>(
+
+<tr key={i} className="border-t border-gray-800">
+
+<td className="px-6 py-4 font-semibold">
+
+{log.event}
+
+</td>
+
+<td className="px-6 py-4 text-gray-300">
+
+{log.details}
+
+</td>
+
+<td className="px-6 py-4 text-gray-400 text-sm">
+
+{log.time}
+
+</td>
+
+</tr>
+
+))}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+)
+
+}
