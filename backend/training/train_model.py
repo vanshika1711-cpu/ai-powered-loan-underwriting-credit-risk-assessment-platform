@@ -2,103 +2,109 @@ import pandas as pd
 import numpy as np
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report, roc_auc_score, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 import joblib
 import os
 
-# Load Dataset
-
+# Load dataset
 current_dir = os.path.dirname(__file__)
 file_path = os.path.join(current_dir, "credit_risk_dataset.csv")
 
 df = pd.read_csv(file_path)
-print("Dataset Loaded")
-print("Shape:", df.shape)
-print(df["loan_status"].value_counts())
 
+print("Dataset Loaded:", df.shape)
 
-# Handle Missing Values
+# ------------------------
+# DATA CLEANING
+# ------------------------
 
+# remove impossible ages
+df = df[(df["person_age"] > 18) & (df["person_age"] < 70)]
 
+# remove unrealistic employment length
+df = df[df["person_emp_length"] < 50]
+
+# fill missing
 df.fillna(df.median(numeric_only=True), inplace=True)
 
+# ------------------------
+# FEATURE ENGINEERING
+# ------------------------
 
-# Feature Engineering
+df["loan_to_income"] = df["loan_amnt"] / df["person_income"]
 
-df["loan_to_income_ratio"] = df["loan_amnt"] / df["person_income"]
-df["interest_income_ratio"] = df["loan_int_rate"] / df["person_income"]
+df["credit_history_ratio"] = df["cb_person_cred_hist_length"] / df["person_age"]
 
+df["emp_age_ratio"] = df["person_emp_length"] / df["person_age"]
 
-# Encode Categorical Columns
+df["interest_loan_ratio"] = df["loan_int_rate"] / df["loan_amnt"]
 
-categorical_cols = df.select_dtypes(include=["object", "string"]).columns
+# ------------------------
+# ENCODE CATEGORICAL
+# ------------------------
+
+categorical_cols = df.select_dtypes(include=["object"]).columns
 df = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
 
-
-# Features & Target
+# ------------------------
+# SPLIT
+# ------------------------
 
 X = df.drop("loan_status", axis=1)
 y = df["loan_status"]
 
-
-# Train-Test Split
-
 X_train, X_test, y_train, y_test = train_test_split(
     X, y,
     test_size=0.2,
-    random_state=42,
-    stratify=y
+    stratify=y,
+    random_state=42
 )
 
+# handle imbalance
+scale_pos_weight = y_train.value_counts()[0] / y_train.value_counts()[1]
 
-# Class Weight for Imbalance
-
-scale_pos_weight = y_train.value_counts()[0] / y_train.value_counts()[1] * 1.1  
-
-
-# Train Optimized XGBoost
+# ------------------------
+# MODEL
+# ------------------------
 
 model = XGBClassifier(
-    n_estimators=700,
-    max_depth=5,
-    learning_rate=0.015,
-    subsample=1.0,
+    n_estimators=500,
+    max_depth=6,
+    learning_rate=0.03,
+    subsample=0.9,
     colsample_bytree=0.8,
-    gamma=0,
-    min_child_weight=1,
-    reg_alpha=0.3,
-    reg_lambda=1.2,
+    gamma=0.1,
+    min_child_weight=3,
+    reg_alpha=0.5,
+    reg_lambda=1,
     scale_pos_weight=scale_pos_weight,
     random_state=42,
-    eval_metric="logloss",
-   
+    eval_metric="logloss"
 )
 
 model.fit(X_train, y_train)
-print("Model Training Complete")
 
-
-
+# ------------------------
+# EVALUATION
+# ------------------------
 
 y_prob = model.predict_proba(X_test)[:, 1]
-threshold = 0.40  
-y_pred = (y_prob > threshold).astype(int)
+y_pred = (y_prob > 0.4).astype(int)
 
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("ROC AUC:", roc_auc_score(y_test, y_prob))
 
-# Evaluation
+print(classification_report(y_test, y_pred))
 
-print("Accuracy:", round(accuracy_score(y_test, y_pred), 4))
-print("ROC-AUC:", round(roc_auc_score(y_test, y_prob), 4))
-print("\nClassification Report:\n", classification_report(y_test, y_pred))
-
-cm = confusion_matrix(y_test, y_pred)
-print("Confusion Matrix:\n", cm)
-
-# Save Model
+# ------------------------
+# SAVE MODEL
+# ------------------------
 
 models_dir = os.path.join(os.path.dirname(current_dir), "models")
 os.makedirs(models_dir, exist_ok=True)
 
 model_path = os.path.join(models_dir, "risk_model_optimized.pkl")
+
 joblib.dump(model, model_path)
-print("Optimized model saved successfully at:", model_path)
+
+print("Model saved:", model_path)

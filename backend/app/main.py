@@ -1,23 +1,33 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+import bcrypt
 import joblib
 import pandas as pd
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 
+from model_metrics import get_model_metrics, get_fairness_metrics
+from explainability import explain_decision
+
 app = Flask(__name__)
 CORS(app)
 
-model = joblib.load("../models/risk_model_optimized.pkl")
+limiter = Limiter(get_remote_address, app=app)
 
+model = joblib.load("models/risk_model_optimized.pkl")
 
-def get_db():
-    conn = sqlite3.connect("creditai.db")
-    conn.row_factory = sqlite3.Row
-    return conn
+# -----------------------------
+# DRIFT TRACKING
+# -----------------------------
+training_income_avg = 50000
+live_income_values = []
 
-
+# -----------------------------
+# SECURITY HEADERS
+# -----------------------------
 @app.after_request
 def add_security_headers(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -26,6 +36,38 @@ def add_security_headers(response):
     return response
 
 
+# -----------------------------
+# DATABASE
+# -----------------------------
+def get_db():
+    conn = sqlite3.connect("creditai.db")
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+# -----------------------------
+# ADMIN CHECK
+# -----------------------------
+def is_admin(email):
+
+    conn = get_db()
+
+    user = conn.execute(
+        "SELECT role FROM users WHERE email=?",
+        (email,)
+    ).fetchone()
+
+    conn.close()
+
+    if user and user["role"] == "admin":
+        return True
+
+    return False
+
+
+# -----------------------------
+# DATABASE INIT
+# -----------------------------
 def init_db():
 
     conn = get_db()
@@ -46,7 +88,8 @@ def init_db():
     CREATE TABLE IF NOT EXISTS users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT UNIQUE,
-        password TEXT
+        password TEXT,
+        role TEXT DEFAULT 'user'
     )
     """)
 
@@ -62,14 +105,28 @@ def home():
     return jsonify({"message": "CreditAI Backend Running"})
 
 
-# ---------------- REGISTER ----------------
+# -----------------------------
+# SYSTEM HEALTH CHECK
+# -----------------------------
+@app.route("/health")
+def health():
+    return jsonify({
+        "status": "running",
+        "model_loaded": True
+    })
 
+
+# -----------------------------
+# REGISTER
+# -----------------------------
 @app.route("/register", methods=["POST"])
+@limiter.limit("10 per minute")
 def register():
 
     data = request.json
     email = data.get("email")
     password = data.get("password")
+    role = data.get("role", "user")
 
     if not email or not password:
         return jsonify({"success": False, "message": "Email and password required"}), 400
@@ -88,8 +145,8 @@ def register():
         return jsonify({"success": False, "message": "User already exists"})
 
     conn.execute(
-        "INSERT INTO users(email,password) VALUES (?,?)",
-        (email, hashed_password)
+        "INSERT INTO users(email,password,role) VALUES (?,?,?)",
+        (email, hashed_password, role)
     )
 
     conn.commit()
@@ -98,9 +155,11 @@ def register():
     return jsonify({"success": True})
 
 
-# ---------------- LOGIN ----------------
-
+# -----------------------------
+# LOGIN
+# -----------------------------
 @app.route("/login", methods=["POST"])
+@limiter.limit("10 per minute")
 def login():
 
     data = request.json
@@ -120,7 +179,8 @@ def login():
     if user and check_password_hash(user["password"], password):
         return jsonify({
             "success": True,
-            "token": "creditai-user"
+            "token": "creditai-user",
+            "role": user["role"]
         })
 
     return jsonify({
@@ -129,9 +189,11 @@ def login():
     })
 
 
-# ---------------- LOAN PREDICTION ----------------
-
+# -----------------------------
+# LOAN PREDICTION
+# -----------------------------
 @app.route("/predict", methods=["POST"])
+@limiter.limit("20 per minute")
 def predict():
 
     try:
@@ -149,6 +211,11 @@ def predict():
 
         if income <= 0 or loan <= 0:
             return jsonify({"error": "Income and loan must be positive"}), 400
+
+        if age < 18:
+            return jsonify({"error": "Applicant must be at least 18"}), 400
+
+        live_income_values.append(income)
 
         loan_percent_income = loan / income
         loan_to_income_ratio = loan / income
@@ -187,8 +254,8 @@ def predict():
 
         df = pd.DataFrame([row])
 
-        prediction = int(model.predict(df)[0])
         prob = float(model.predict_proba(df)[0][1])
+        prediction = 1 if prob >= 0.4 else 0
 
         risk_score = round(prob * 100, 2)
         approval_probability = round((1 - prob) * 100, 2)
@@ -221,100 +288,73 @@ def predict():
         }), 500
 
 
-# ---------------- APPLICATION LIST ----------------
-
-@app.route("/applications")
-def applications():
-
-    conn = get_db()
-
-    rows = conn.execute(
-        "SELECT * FROM applications ORDER BY id DESC"
-    ).fetchall()
-
-    conn.close()
-
-    return jsonify([dict(row) for row in rows])
-
-
-# ---------------- ANALYTICS ----------------
-
-@app.route("/analytics")
-def analytics():
-
-    conn = get_db()
-
-    total = conn.execute(
-        "SELECT COUNT(*) as c FROM applications"
-    ).fetchone()["c"]
-
-    approved = conn.execute(
-        "SELECT COUNT(*) as c FROM applications WHERE decision='Approved'"
-    ).fetchone()["c"]
-
-    rejected = conn.execute(
-        "SELECT COUNT(*) as c FROM applications WHERE decision='Rejected'"
-    ).fetchone()["c"]
-
-    avg_risk = conn.execute(
-        "SELECT AVG(risk) as r FROM applications"
-    ).fetchone()["r"]
-
-    conn.close()
-
-    return jsonify({
-        "total": total,
-        "approved": approved,
-        "rejected": rejected,
-        "avg_risk": avg_risk or 0
-    })
-
-
-# ---------------- AI EXPLANATION ----------------
-
+# -----------------------------
+# AI EXPLANATION
+# -----------------------------
 @app.route("/explain", methods=["POST"])
 def explain():
 
     data = request.json
 
-    income = float(data.get("income",50000))
-    loan = float(data.get("loanAmount",10000))
-    credit = float(data.get("creditHistory",5))
+    explanation = explain_decision(data)
 
-    employment = float(data.get("employmentYears",0))
-    interest = float(data.get("interestRate",0))
+    return jsonify(explanation)
 
-    home = data.get("homeOwnership","")
-    intent = data.get("loanIntent","")
-    grade = data.get("loanGrade","")
-    default = data.get("previousDefault","0")
 
-    reasons = []
+# -----------------------------
+# MODEL METRICS
+# -----------------------------
+@app.route("/metrics")
+def metrics():
 
-    loan_ratio = loan / income
+    email = request.args.get("email")
 
-    if credit < 5:
-        reasons.append("Very short credit history increases default risk")
+    if not is_admin(email):
+        return jsonify({"error": "Admin access required"}), 403
 
-    if employment < 2:
-        reasons.append("Short employment history indicates unstable income")
+    metrics_data = get_model_metrics()
 
-    if interest > 15:
-        reasons.append("High interest rate indicates higher financial risk")
+    return jsonify(metrics_data)
 
-    if home == "rent":
-        reasons.append("Renting home increases financial risk")
 
-    if default == "1":
-        reasons.append("Previous loan default negatively affects approval chances")
+# -----------------------------
+# FAIRNESS MONITORING
+# -----------------------------
+@app.route("/fairness")
+def fairness():
 
-    if loan_ratio > 0.8:
-        reasons.append("Loan size is very high relative to income")
+    email = request.args.get("email")
 
-    if len(reasons) == 0:
-        reasons.append("Applicant financial profile appears balanced")
+    if not is_admin(email):
+        return jsonify({"error": "Admin access required"}), 403
 
-    return jsonify({"reasons": reasons})
+    fairness_data = get_fairness_metrics()
+
+    return jsonify(fairness_data)
+
+
+# -----------------------------
+# MODEL DRIFT MONITORING
+# -----------------------------
+@app.route("/drift")
+def drift():
+
+    if len(live_income_values) == 0:
+        return jsonify({
+            "training_income_avg": training_income_avg,
+            "live_income_avg": 0,
+            "drift_detected": False
+        })
+
+    live_avg = sum(live_income_values) / len(live_income_values)
+
+    drift = abs(live_avg - training_income_avg) > (0.3 * training_income_avg)
+
+    return jsonify({
+        "training_income_avg": training_income_avg,
+        "live_income_avg": round(live_avg,2),
+        "drift_detected": drift
+    })
 
 
 if __name__ == "__main__":
