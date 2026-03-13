@@ -172,8 +172,8 @@ className="col-span-2 p-3 rounded-lg bg-[#0f172a] border border-white/10 focus:b
 />
 
 <input
-name="interestRate"
-placeholder="Interest Rate (%)"
+name="creditHistory"
+placeholder="Credit History Length"
 onChange={handleChange}
 className="col-span-2 p-3 rounded-lg bg-[#0f172a] border border-white/10 focus:border-purple-500 outline-none"
 />
