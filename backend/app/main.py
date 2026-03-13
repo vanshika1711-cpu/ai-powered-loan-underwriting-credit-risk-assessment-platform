@@ -12,7 +12,11 @@ from app.model_metrics import get_model_metrics, get_fairness_metrics
 from app.explainability import explain_decision
 
 app = Flask(__name__)
-CORS(app)
+CORS(
+    app,
+    supports_credentials=True,
+    resources={r"/*": {"origins": "*"}}
+)
 
 limiter = Limiter(get_remote_address, app=app)
 
@@ -144,7 +148,7 @@ def health():
 # -----------------------------
 # REGISTER
 # -----------------------------
-@app.route("/register", methods=["POST"])
+@app.route("/register", methods=["POST","OPTIONS"])
 @limiter.limit("10 per minute")
 def register():
 
@@ -185,7 +189,7 @@ def register():
 # -----------------------------
 # LOGIN
 # -----------------------------
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["POST","OPTIONS"])
 @limiter.limit("10 per minute")
 def login():
 
@@ -222,13 +226,13 @@ def login():
 # -----------------------------
 # LOAN PREDICTION
 # -----------------------------
-@app.route("/predict", methods=["POST"])
+@app.route("/predict", methods=["POST","OPTIONS"])
 @limiter.limit("20 per minute")
 def predict():
 
     try:
 
-        data = request.json
+        data = request.get_json()
 
         name = data.get("name", "Applicant")
         age = float(data.get("age", 30))
@@ -411,7 +415,7 @@ def analytics():
 @app.route("/explain", methods=["POST"])
 def explain():
 
-    data = request.json
+    data = request.get_json()
 
     explanation = explain_decision(data)
 
