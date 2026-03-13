@@ -344,6 +344,81 @@ def predict():
             "details": str(e)
         }), 500
 
+@app.route("/explain", methods=["POST", "OPTIONS"])
+@limiter.limit("10 per minute", exempt_when=lambda: request.method=="OPTIONS")
+def explain():
+    if request.method=="OPTIONS":
+        return jsonify({"status":"ok"}), 200
+    try:
+        data = request.get_json()
+
+        # same preprocessing as /predict
+        age = float(data.get("age", 30))
+        income = float(data.get("income", 50000))
+        loan = float(data.get("loanAmount", 10000))
+        employment = float(data.get("employmentYears", 5))
+        interest = float(data.get("interestRate", 8))
+        credit = float(data.get("creditHistory", 5))
+        home = data.get("homeOwnership")
+        intent = data.get("loanIntent")
+        grade = data.get("loanGrade")
+        default = data.get("previousDefault")
+
+        home_rent = 1 if home=="rent" else 0
+        home_own = 1 if home=="own" else 0
+        home_other = 1 if home=="mortgage" else 0
+        intent_edu = 1 if intent=="education" else 0
+        intent_med = 1 if intent=="medical" else 0
+        intent_personal = 1 if intent=="personal" else 0
+        intent_business = 1 if intent=="business" else 0
+        grade_B = 1 if grade=="B" else 0
+        grade_C = 1 if grade=="C" else 0
+        grade_D = 1 if grade=="D" else 0
+        grade_E = 1 if grade=="E" else 0
+        grade_F = 1 if grade=="F" else 0
+        grade_G = 1 if grade=="G" else 0
+        default_flag = 1 if default=="1" else 0
+
+        row = {
+            "person_age": age,
+            "person_income": income,
+            "person_emp_length": employment,
+            "loan_amnt": loan,
+            "loan_int_rate": interest,
+            "loan_percent_income": loan/income,
+            "cb_person_cred_hist_length": credit,
+            "loan_to_income": loan/income,
+            "credit_history_ratio": credit/age,
+            "emp_age_ratio": employment/age,
+            "interest_loan_ratio": interest/loan,
+            "person_home_ownership_OTHER": home_other,
+            "person_home_ownership_OWN": home_own,
+            "person_home_ownership_RENT": home_rent,
+            "loan_intent_EDUCATION": intent_edu,
+            "loan_intent_HOMEIMPROVEMENT": 0,
+            "loan_intent_MEDICAL": intent_med,
+            "loan_intent_PERSONAL": intent_personal,
+            "loan_intent_VENTURE": intent_business,
+            "loan_grade_B": grade_B,
+            "loan_grade_C": grade_C,
+            "loan_grade_D": grade_D,
+            "loan_grade_E": grade_E,
+            "loan_grade_F": grade_F,
+            "loan_grade_G": grade_G,
+            "cb_person_default_on_file_Y": default_flag
+        }
+
+        df = pd.DataFrame([row])
+        df = df[model.feature_names_in_]
+
+        # use your explainability function
+        reasons = explain_decision(model, df)
+
+        return jsonify({"reasons": reasons})
+
+    except Exception as e:
+        print("Explain error:", e)
+        return jsonify({"error":"Explain failed","details":str(e)}),500
 
 if __name__ == "__main__":
 
