@@ -10,6 +10,7 @@ income:"",
 loanAmount:"",
 employmentYears:"",
 interestRate:"",
+creditHistory:"",
 homeOwnership:"",
 loanIntent:"",
 loanGrade:"",
@@ -161,6 +162,13 @@ name="employmentYears"
 placeholder="Employment Years"
 onChange={handleChange}
 className="p-3 rounded-lg bg-[#0f172a] border border-white/10 focus:border-purple-500 outline-none"
+/>
+
+<input
+name="interestRate"
+placeholder="Interest Rate (%)"
+onChange={handleChange}
+className="col-span-2 p-3 rounded-lg bg-[#0f172a] border border-white/10 focus:border-purple-500 outline-none"
 />
 
 <input
