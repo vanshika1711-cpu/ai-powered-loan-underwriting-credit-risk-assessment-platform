@@ -370,6 +370,69 @@ def explain():
             "error": "Explain failed",
             "details": str(e)
         }), 500
+    
+# -----------------------------
+# GET ALL APPLICATIONS
+# -----------------------------
+@app.route("/applications", methods=["GET"])
+def get_applications():
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM applications").fetchall()
+    conn.close()
+
+    apps = []
+    for r in rows:
+        apps.append({
+            "name": r["name"],
+            "age": r["age"],
+            "income": r["income"],
+            "loan": r["loan"],
+            "decision": r["decision"],
+            "risk": r["risk"]
+        })
+    return jsonify(apps)
+
+
+# -----------------------------
+# GET ANALYTICS DATA
+# -----------------------------
+@app.route("/analytics", methods=["GET"])
+def get_analytics():
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM applications").fetchall()
+    conn.close()
+
+    apps = []
+    for r in rows:
+        apps.append({
+            "name": r["name"],
+            "age": r["age"],
+            "income": r["income"],
+            "loan": r["loan"],
+            "decision": r["decision"],
+            "risk": r["risk"]
+        })
+    return jsonify(apps)
+
+
+# -----------------------------
+# GET AUDIT LOGS
+# -----------------------------
+@app.route("/audit", methods=["GET"])
+def get_audit_logs():
+    conn = get_db()
+    rows = conn.execute("SELECT event, details, timestamp as time FROM audit_logs ORDER BY timestamp DESC").fetchall()
+    conn.close()
+
+    logs = []
+    for r in rows:
+        logs.append({
+            "event": r["event"],
+            "details": r["details"],
+            "time": r["time"]
+        })
+    return jsonify(logs)
+
 
 if __name__ == "__main__":
 
