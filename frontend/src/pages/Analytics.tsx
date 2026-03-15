@@ -32,7 +32,7 @@ const [loading,setLoading] = useState(true)
 
 useEffect(()=>{
 
-fetch(`${API}/applications`)
+fetch(`${API}/analytics`)
 .then(res=>res.json())
 .then(data=>{
 setApps(data)
