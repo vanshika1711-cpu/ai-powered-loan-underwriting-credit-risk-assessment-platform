@@ -405,7 +405,7 @@ def analytics():
 # -----------------------------
 # AUDIT LOGS
 # -----------------------------
-@app.route("/audit-logs", methods=["GET"])
+@app.route("/audit", methods=["GET"])
 def get_audit_logs():
 
     conn = get_db()
