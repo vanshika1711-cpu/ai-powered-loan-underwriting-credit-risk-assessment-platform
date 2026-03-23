@@ -85,6 +85,7 @@ return (
 <p className="text-gray-500">
 Credit risk insights and loan performance overview
 </p>
+// 📊 KPI cards section displaying key metrics
 </div>
 
 {/* KPI CARDS */}
