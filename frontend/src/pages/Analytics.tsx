@@ -172,7 +172,7 @@ label
 <XAxis dataKey="name"/>
 <YAxis/>
 <Tooltip/>
-
+// 📉 Area chart showing risk trend over applications
 <Area
 type="monotone"
 dataKey="risk"
