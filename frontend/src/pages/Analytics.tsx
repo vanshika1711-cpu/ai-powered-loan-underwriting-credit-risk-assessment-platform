@@ -9,6 +9,7 @@ import {
   Area,
   XAxis,
   YAxis,
+  // 💡 Tooltip for interactive data display
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
