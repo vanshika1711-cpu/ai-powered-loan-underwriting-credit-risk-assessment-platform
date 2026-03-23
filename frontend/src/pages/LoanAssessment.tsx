@@ -86,7 +86,7 @@ export default function LoanAssessment() {
     if (risk < 70) return "Medium Risk"
     return "High Risk"
   }
-
+// Returns UI color based on calculated risk level
   const riskColor = () => {
     if (risk < 40) return "text-green-400"
     if (risk < 70) return "text-yellow-400"
