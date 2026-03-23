@@ -74,7 +74,7 @@ name:a.name,
 loan:a.loan,
 risk:a.risk
 }))
-
+// 🎨 Render analytics dashboard UI
 return (
 
 <div className="p-8 space-y-8">
