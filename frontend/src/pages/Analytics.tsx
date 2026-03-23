@@ -31,7 +31,7 @@ export default function Analytics() {
 
 const [apps,setApps] = useState<Application[]>([])
 const [loading,setLoading] = useState(true)
-
+// 🔄 Fetch analytics data on component mount
 useEffect(()=>{
 // ⏳ Loading state for API fetch
 fetch(`${API}/analytics`)
