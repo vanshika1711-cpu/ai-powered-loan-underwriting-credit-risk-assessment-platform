@@ -145,7 +145,7 @@ export default function LoanAssessment() {
               onClick={runAssessment}
               className="mt-6 w-full p-3 bg-purple-600 rounded-lg"
             >
-              {loading ? "Running..." : "Run AI Assessment"}
+              {loading ? "Running..." : "Run AI Risk Assessment"}
             </button>
 
             {error && <p className="text-red-400 mt-4">{error}</p>}
