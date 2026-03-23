@@ -33,7 +33,7 @@ const [apps,setApps] = useState<Application[]>([])
 const [loading,setLoading] = useState(true)
 
 useEffect(()=>{
-
+// ⏳ Loading state for API fetch
 fetch(`${API}/analytics`)
 .then(res=>res.json())
 .then(data=>{
