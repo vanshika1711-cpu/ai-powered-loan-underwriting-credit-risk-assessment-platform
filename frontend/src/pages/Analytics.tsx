@@ -57,7 +57,7 @@ Loading Analytics...
 }
 // 💰 Calculate total loan amount
 const totalLoans = apps.reduce((s,a)=>s+a.loan,0)
-
+// ✅ Count approved applications
 const approved = apps.filter(a=>a.decision==="Approved").length
 
 const approvalRate = apps.length
