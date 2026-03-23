@@ -167,6 +167,7 @@ label
 <h2 className="mb-4 font-semibold text-lg">Risk Trend</h2>
 
 <ResponsiveContainer width="100%" height={320}>
+  // 📊 Recharts AreaChart component
 <AreaChart data={chartData}>
 <CartesianGrid strokeDasharray="3 3"/>
 <XAxis dataKey="name"/>
