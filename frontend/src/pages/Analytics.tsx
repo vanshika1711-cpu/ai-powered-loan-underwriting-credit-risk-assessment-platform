@@ -59,7 +59,7 @@ Loading Analytics...
 const totalLoans = apps.reduce((s,a)=>s+a.loan,0)
 // ✅ Count approved applications
 const approved = apps.filter(a=>a.decision==="Approved").length
-
+// 📈 Calculate approval percentage
 const approvalRate = apps.length
 ? ((approved/apps.length)*100).toFixed(1)
 :0
