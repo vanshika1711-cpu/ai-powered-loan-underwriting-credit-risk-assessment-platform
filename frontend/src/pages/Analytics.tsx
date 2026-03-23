@@ -25,7 +25,7 @@ interface Application {
 }
 // 🌐 Backend API base URL for analytics
 const API = "https://ai-powered-loan-underwriting-credit-risk-3at2.onrender.com"
-
+// 🚀 Main Analytics Component
 export default function Analytics() {
 
 const [apps,setApps] = useState<Application[]>([])
