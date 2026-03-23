@@ -154,6 +154,7 @@ fill="#22c55e"
 label
 />
 <Tooltip/>
+// 🔄 Recharts PieChart component
 </PieChart>
 </ResponsiveContainer>
 
