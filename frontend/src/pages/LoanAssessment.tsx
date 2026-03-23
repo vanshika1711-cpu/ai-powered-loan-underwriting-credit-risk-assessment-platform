@@ -29,7 +29,7 @@ export default function LoanAssessment() {
   const handleChange = (e: any) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
-
+// Executes prediction and explanation API calls
   const runAssessment = async () => {
 
     setLoading(true)
