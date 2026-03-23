@@ -14,7 +14,7 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts"
-
+// 📊 Application data structure for analytics charts
 interface Application {
   name: string
   age: number
