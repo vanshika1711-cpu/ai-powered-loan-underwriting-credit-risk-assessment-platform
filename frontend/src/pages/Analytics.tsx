@@ -180,7 +180,7 @@ dataKey="risk"
 stroke="#ef4444"
 fill="#fecaca"
 />
-
+// 🔥 Risk trend visualization line
 </AreaChart>
 </ResponsiveContainer>
 
