@@ -53,7 +53,7 @@ export default function LoanAssessment() {
       }
 
       const data = await res.json()
-
+// Determines textual risk category based on score
       setRisk(Math.round(data.risk_score || 0))
       setDecision(data.decision || "Rejected")
 
