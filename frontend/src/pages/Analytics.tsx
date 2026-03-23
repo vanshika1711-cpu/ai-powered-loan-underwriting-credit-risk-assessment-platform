@@ -113,7 +113,7 @@ Credit risk insights and loan performance overview
 <p className="text-gray-500 text-sm">Applications</p>
 <h2 className="text-3xl font-bold mt-2">{apps.length}</h2>
 </div>
-
+// 📈 Charts section for visual insights
 </div>
 
 {/* CHARTS */}
