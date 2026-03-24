@@ -78,7 +78,7 @@ className="bg-[#0f172a] border border-gray-700 px-4 py-2 rounded-lg"
 {/* STATS */}
 
 <div className="grid grid-cols-3 gap-6 mb-8">
-
+// 📦 Total applications count card
 <div className="bg-[#0f172a] p-6 rounded-xl">
 <p className="text-gray-400 text-sm">Total Applications</p>
 <h2 className="text-2xl font-bold">{apps.length}</h2>
