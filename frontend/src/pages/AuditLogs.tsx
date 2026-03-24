@@ -12,7 +12,7 @@ const API="https://ai-powered-loan-underwriting-credit-risk-3at2.onrender.com"
 export default function AuditLogs(){
 // 📦 Stores audit logs data
 const [logs,setLogs]=useState<Log[]>([])
-
+// 🔄 Fetch audit logs on component mount
 useEffect(()=>{
 
 fetch(`${API}/audit`)
