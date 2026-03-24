@@ -40,7 +40,7 @@ a.name.toLowerCase().includes(search.toLowerCase())
 )
 // 💰 Calculate total loan amount
 const totalLoan=apps.reduce((s,a)=>s+a.loan,0)
-
+// ⚠️ Calculate average risk score
 const avgRisk=apps.length
 ? (apps.reduce((s,a)=>s+a.risk,0)/apps.length).toFixed(1)
 :0
