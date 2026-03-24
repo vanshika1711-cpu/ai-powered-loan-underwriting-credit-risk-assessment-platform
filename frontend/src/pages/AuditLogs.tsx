@@ -1,6 +1,6 @@
 // 📄 Audit Logs Page - Tracks all system activities
 import { useEffect, useState } from "react"
-
+// 🧩 Log data structure
 interface Log{
 event:string
 details:string
