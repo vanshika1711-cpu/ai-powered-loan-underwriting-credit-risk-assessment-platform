@@ -138,7 +138,7 @@ Loading AI Risk Data...
 <td className="px-6 py-4">${a.loan.toLocaleString()}</td>
 
 <td className="px-6 py-4">
-
+// ✅ Approval / Rejection badge
 <span className={`px-3 py-1 rounded-full text-xs
 ${a.decision==="Approved"
 ?"bg-green-500/20 text-green-400"
