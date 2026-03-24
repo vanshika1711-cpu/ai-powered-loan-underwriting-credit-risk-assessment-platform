@@ -1,6 +1,6 @@
 // 📄 Applications Page - Displays all loan applications
 import { useEffect, useState } from "react"
-
+// 🧩 Application data model for table rendering
 interface Application {
   name: string
   age: number
