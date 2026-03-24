@@ -16,6 +16,7 @@ const [logs,setLogs]=useState<Log[]>([])
 useEffect(()=>{
 // 📡 API call to get audit logs
 fetch(`${API}/audit`)
+// 🔄 Convert response to JSON
 .then(res=>res.json())
 .then(data=>setLogs(data))
 
