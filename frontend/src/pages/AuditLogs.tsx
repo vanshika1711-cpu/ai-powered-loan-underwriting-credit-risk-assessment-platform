@@ -55,7 +55,7 @@ Audit Logs
 // 🔽 Table body section
 // 🔁 Loop through logs
 {logs.map((log,i)=>(
-
+// 📄 Each log row
 <tr key={i} className="border-t border-gray-800">
 
 <td className="px-6 py-4 font-semibold">
