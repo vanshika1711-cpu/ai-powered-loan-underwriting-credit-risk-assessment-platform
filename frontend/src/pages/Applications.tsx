@@ -32,7 +32,7 @@ fetch(`${API}/applications`)
   console.error(err)
   setLoading(false)
 })
-
+// 🔍 Filter applications based on search input
 },[])
 // 🔍 Search input state for filtering applicants
 const filtered=apps.filter(a=>
