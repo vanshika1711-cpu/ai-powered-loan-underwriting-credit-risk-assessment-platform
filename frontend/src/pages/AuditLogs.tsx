@@ -59,7 +59,7 @@ Audit Logs
 <tr key={i} className="border-t border-gray-800">
 // 📌 Display event
 <td className="px-6 py-4 font-semibold">
-
+// ⏱️ Display timestamp
 {log.event}
 
 </td>
