@@ -177,7 +177,7 @@ style={{width:`${a.risk}%`}}
 </table>
 
 }
-
+// 📊 Risk progress bar visualization
 </div>
 
 </div>
