@@ -33,7 +33,7 @@ fetch(`${API}/applications`)
 })
 
 },[])
-
+// 🔍 Search input state for filtering applicants
 const filtered=apps.filter(a=>
 a.name.toLowerCase().includes(search.toLowerCase())
 )
