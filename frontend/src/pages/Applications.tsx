@@ -53,7 +53,7 @@ if(risk<70) return "bg-yellow-500"
 // 🔴 High risk
 return "bg-red-500"
 }
-
+// 🎨 Render Applications UI
 return(
 
 <div className="p-8 text-white">
