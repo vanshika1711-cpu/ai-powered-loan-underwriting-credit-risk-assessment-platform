@@ -77,7 +77,7 @@ Audit Logs
 </td>
 // 🔚 End of logs mapping
 </tr>
-
+// 📊 End of table
 ))}
 
 </tbody>
