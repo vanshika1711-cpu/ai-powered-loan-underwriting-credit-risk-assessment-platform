@@ -1,3 +1,4 @@
+// 📄 Audit Logs Page - Tracks all system activities
 import { useEffect, useState } from "react"
 
 interface Log{
