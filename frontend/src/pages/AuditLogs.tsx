@@ -42,6 +42,7 @@ Audit Logs
 <tr>
 // 📊 Audit logs table
 <th className="px-6 py-4 text-left">Event</th>
+// 📌 Event column
 <th className="px-6 py-4 text-left">Details</th>
 <th className="px-6 py-4 text-left">Time</th>
 
