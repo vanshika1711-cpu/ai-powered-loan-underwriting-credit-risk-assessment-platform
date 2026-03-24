@@ -40,7 +40,7 @@ Audit Logs
 <thead className="border-b border-gray-800 text-gray-400">
 
 <tr>
-
+// 📊 Audit logs table
 <th className="px-6 py-4 text-left">Event</th>
 <th className="px-6 py-4 text-left">Details</th>
 <th className="px-6 py-4 text-left">Time</th>
