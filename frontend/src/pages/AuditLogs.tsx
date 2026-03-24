@@ -6,7 +6,7 @@ event:string
 details:string
 time:string
 }
-
+// 🌐 Backend API endpoint for audit logs
 const API="https://ai-powered-loan-underwriting-credit-risk-3at2.onrender.com"
 
 export default function AuditLogs(){
