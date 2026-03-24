@@ -55,7 +55,7 @@ return "bg-red-500"
 }
 // 🎨 Render Applications UI
 return(
-
+// 📦 Main page container
 <div className="p-8 text-white">
 
 <div className="flex justify-between mb-8">
