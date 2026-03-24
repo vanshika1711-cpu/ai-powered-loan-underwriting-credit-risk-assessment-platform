@@ -75,7 +75,7 @@ Audit Logs
 {log.time}
 
 </td>
-
+// 🔚 End of logs mapping
 </tr>
 
 ))}
