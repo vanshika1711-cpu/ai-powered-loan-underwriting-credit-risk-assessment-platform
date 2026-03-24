@@ -34,7 +34,7 @@ Audit Logs
 </h1>
 
 <div className="bg-[#020617] border border-gray-800 rounded-xl overflow-hidden">
-
+// 📋 Table wrapper container
 <table className="w-full">
 
 <thead className="border-b border-gray-800 text-gray-400">
