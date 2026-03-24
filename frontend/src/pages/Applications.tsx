@@ -1,3 +1,4 @@
+// 📄 Applications Page - Displays all loan applications
 import { useEffect, useState } from "react"
 
 interface Application {
