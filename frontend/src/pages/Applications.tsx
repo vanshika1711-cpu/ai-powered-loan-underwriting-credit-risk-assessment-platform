@@ -24,6 +24,7 @@ fetch(`${API}/applications`)
 .then(res=>res.json())
 .then(data=>{
   setApps(data)
+  // ⏳ Loading indicator state
   setLoading(false)
 })
 .catch(err=>{
