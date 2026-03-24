@@ -108,7 +108,7 @@ Loading AI Risk Data...
 </div>
 
 :
-
+// 🧠 Table header columns
 <table className="w-full">
 
 <thead className="text-gray-400 border-b border-gray-800">
