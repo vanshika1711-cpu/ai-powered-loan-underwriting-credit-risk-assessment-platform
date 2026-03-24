@@ -148,7 +148,7 @@ ${a.decision==="Approved"
 </span>
 
 </td>
-
+// 🔁 Loop through filtered applications
 <td className="px-6 py-4">
 
 <div className="flex items-center gap-3">
