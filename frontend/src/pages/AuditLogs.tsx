@@ -24,7 +24,7 @@ fetch(`${API}/audit`)
 },[])
 // 🎨 Render audit logs UI
 return(
-
+// 📦 Main container
 <div className="p-8 text-white">
 
 <h1 className="text-4xl font-bold mb-8">
